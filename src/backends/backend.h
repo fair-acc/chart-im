@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <memory>
 
 #include "utils.h"
@@ -7,6 +8,7 @@
 namespace ImChart {
 
 class Window;
+class Timer;
 
 namespace Backend {
 
@@ -23,6 +25,8 @@ public:
     virtual std::unique_ptr<Window> createWindow(ImChart::Window *window, int w, int h) = 0;
 
     virtual void                    scheduleRender(ImChart::Window *window)             = 0;
+
+    virtual void                    startTimer(Timer *t)                                = 0;
 };
 
 class Window {

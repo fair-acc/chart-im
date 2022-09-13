@@ -1,5 +1,7 @@
 #include "glfwbackend.h"
 
+#include <thread>
+
 #include <GLFW/glfw3.h>
 #ifdef X11_ENABLED
 #define GLFW_EXPOSE_NATIVE_X11
@@ -12,6 +14,7 @@
 #include <implot.h>
 
 #include "renderers/renderer.h"
+#include "timer.h"
 #include "window.h"
 
 namespace ImChart::Backend {
@@ -72,14 +75,38 @@ void GLFWBackend::scheduleRender(ImChart::Window *window) {
     glfwPostEmptyEvent();
 }
 
+void GLFWBackend::startTimer(Timer *timer) {
+    // Poor man's timer
+    std::thread t([this, timer]() {
+        while (true) {
+            std::this_thread::sleep_for(timer->interval);
+
+            m_timersMutex.lock();
+            m_timersReady.push_back(timer);
+            m_timersMutex.unlock();
+            glfwPostEmptyEvent();
+        }
+    });
+    t.detach();
+}
+
 void GLFWBackend::run() {
     bool quit = false;
     while (!quit) {
         glfwWaitEvents();
 
+        m_timersMutex.lock();
+        auto ts = std::move(m_timersReady);
+        m_timersMutex.unlock();
+
+        for (auto *t : ts) {
+            t->onTimeout();
+        }
+
         if (!m_windowsToRender.empty()) {
+            auto wins = std::move(m_windowsToRender);
             Renderer::instance().begin();
-            for (auto *w : m_windowsToRender) {
+            for (auto *w : wins) {
                 auto gw = static_cast<GLFWWindow *>(&w->backendWindow());
                 ImGui::SetCurrentContext(gw->m_imgui);
                 ImPlot::SetCurrentContext(gw->m_implot);

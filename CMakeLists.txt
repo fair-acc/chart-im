@@ -23,6 +23,7 @@ if (${OpenGL_FOUND})
 endif()
 
 add_library(imgui STATIC ${imgui_SOURCE_DIR}/imgui.cpp
+                         ${imgui_SOURCE_DIR}/imgui.h
                          ${imgui_SOURCE_DIR}/imgui_demo.cpp
                          ${imgui_SOURCE_DIR}/imgui_draw.cpp
                          ${imgui_SOURCE_DIR}/imgui_tables.cpp
@@ -37,13 +38,17 @@ if (${OpenGL_FOUND})
 endif()
 
 add_library(implot STATIC ${implot_SOURCE_DIR}/implot.cpp
+                          ${implot_SOURCE_DIR}/implot.h
                           ${implot_SOURCE_DIR}/implot_demo.cpp
                           ${implot_SOURCE_DIR}/implot_items.cpp)
 target_link_libraries(implot PUBLIC imgui)
 target_include_directories(implot PUBLIC ${implot_SOURCE_DIR})
 
 add_executable(imchart src/main.cpp
+                       src/dataset.cpp
+                       src/sindataset.cpp
                        src/window.cpp
+                       src/timer.cpp
                        src/backends/backend.cpp
                        src/backends/glfw/glfwbackend.cpp
                        src/renderers/renderer.cpp)

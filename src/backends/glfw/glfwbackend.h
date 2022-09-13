@@ -1,5 +1,6 @@
 #pragma once
 
+#include <mutex>
 #include <vector>
 
 #include "../backend.h"
@@ -24,8 +25,12 @@ public:
 
     void                    scheduleRender(ImChart::Window *window) final;
 
+    void                    startTimer(Timer *t) final;
+
 private:
     std::vector<ImChart::Window *> m_windowsToRender;
+    std::mutex                     m_timersMutex;
+    std::vector<Timer *>           m_timersReady;
 };
 
 class GLFWWindow : public Window {

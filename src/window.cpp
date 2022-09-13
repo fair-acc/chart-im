@@ -27,7 +27,6 @@ void Window::show() {
         m_surface = Renderer::instance().createSurface(m_window.get());
     }
     m_window->show();
-    scheduleRender();
 }
 
 void Window::scheduleRender() {

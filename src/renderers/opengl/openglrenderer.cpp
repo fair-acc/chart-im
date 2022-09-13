@@ -84,6 +84,9 @@ std::unique_ptr<Surface> OpenGLRenderer::createSurface(Backend::Window *window) 
 
     ImGui_ImplOpenGL3_Init();
 
+    auto col = ImGui::GetStyle().Colors[ImGuiCol_WindowBg];
+    glClearColor(col.x, col.y, col.z, 1);
+
     return s;
 }
 
@@ -101,7 +104,6 @@ bool OpenGLSurface::newFrame() {
         return false;
     }
 
-    glClearColor(1, 1, 1, 1);
     glClear(GL_COLOR_BUFFER_BIT);
 
     const auto s = m_window->pixelSize();
