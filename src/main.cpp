@@ -1,6 +1,7 @@
 #include <fmt/format.h>
 
 #include <imgui.h>
+#include <implot.h>
 
 #include "backends/backend.h"
 #include "renderers/renderer.h"
@@ -28,6 +29,8 @@ int main(int argc, char **argv) {
     Window win;
     win.onRender = []() {
         ImGui::ShowDemoWindow();
+
+        ImPlot::ShowDemoWindow();
     };
     win.show();
 

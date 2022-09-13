@@ -33,7 +33,14 @@ target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR})
 if (${OpenGL_FOUND})
     target_sources(imgui PRIVATE ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp)
     target_compile_definitions(imgui PRIVATE -DIMGUI_IMPL_OPENGL_ES3 -DIMGUI_IMPL_OPENGL_LOADER_CUSTOM=1)
+    target_compile_definitions(imgui PUBLIC -DIMGUI_USER_CONFIG="${CMAKE_SOURCE_DIR}/src/imconfig.h")
 endif()
+
+add_library(implot STATIC ${implot_SOURCE_DIR}/implot.cpp
+                          ${implot_SOURCE_DIR}/implot_demo.cpp
+                          ${implot_SOURCE_DIR}/implot_items.cpp)
+target_link_libraries(implot PUBLIC imgui)
+target_include_directories(implot PUBLIC ${implot_SOURCE_DIR})
 
 add_executable(imchart src/main.cpp
                        src/window.cpp
@@ -48,4 +55,4 @@ if (${OpenGL_FOUND})
 endif()
 
 target_include_directories(imchart PRIVATE ${CMAKE_SOURCE_DIR}/src)
-target_link_libraries(imchart glfw fmt::fmt imgui)
+target_link_libraries(imchart glfw fmt::fmt imgui implot)

@@ -6,6 +6,7 @@
 
 struct GLFWwindow;
 struct ImGuiContext;
+struct ImPlotContext;
 
 namespace ImChart {
 
@@ -40,6 +41,7 @@ public:
 
     GLFWwindow   *m_win;
     ImGuiContext *m_imgui;
+    ImPlotContext *m_implot;
 };
 
 }

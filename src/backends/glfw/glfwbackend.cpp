@@ -9,6 +9,7 @@
 #include <fmt/format.h>
 
 #include "backends/imgui_impl_glfw.h"
+#include <implot.h>
 
 #include "renderers/renderer.h"
 #include "window.h"
@@ -48,7 +49,9 @@ std::unique_ptr<Window> GLFWBackend::createWindow(ImChart::Window *window, int w
     w->m_win   = win;
 
     w->m_imgui = ImGui::CreateContext();
+    w->m_implot = ImPlot::CreateContext();
     ImGui::SetCurrentContext(w->m_imgui);
+    ImPlot::SetCurrentContext(w->m_implot);
 
     ImGuiIO &io = ImGui::GetIO();
     (void) io;
@@ -79,6 +82,7 @@ void GLFWBackend::run() {
             for (auto *w : m_windowsToRender) {
                 auto gw = static_cast<GLFWWindow *>(&w->backendWindow());
                 ImGui::SetCurrentContext(gw->m_imgui);
+                ImPlot::SetCurrentContext(gw->m_implot);
                 if (w->surface().newFrame()) {
                     ImGui_ImplGlfw_NewFrame();
                     ImGui::NewFrame();
