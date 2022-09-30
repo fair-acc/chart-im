@@ -1,6 +1,7 @@
 #include "backend.h"
 
 #include "glfw/glfwbackend.h"
+#include "sdl/sdlbackend.h"
 
 namespace ImChart::Backend {
 
@@ -11,7 +12,7 @@ bool            create() {
                    return false;
     }
 #ifdef OPENGL_ENABLED
-    g_backend = GLFWBackend::create();
+    g_backend = SDLBackend::create();
 #endif
     return g_backend;
 }

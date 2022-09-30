@@ -3,10 +3,16 @@
 #include <thread>
 
 #include <GLFW/glfw3.h>
+#ifndef EMSCRIPTEN
+
 #ifdef X11_ENABLED
 #define GLFW_EXPOSE_NATIVE_X11
 #endif
 #include <GLFW/glfw3native.h>
+
+#else
+#include <emscripten.h>
+#endif
 
 #include <fmt/format.h>
 
@@ -32,8 +38,10 @@ GLFWBackend *GLFWBackend::create() {
 }
 
 void *GLFWBackend::nativeDisplay() {
+#ifndef EMSCRIPTEN
 #ifdef X11_ENABLED
     glfwGetX11Display();
+#endif
 #endif
     return nullptr;
 }
@@ -90,39 +98,53 @@ void GLFWBackend::startTimer(Timer *timer) {
     t.detach();
 }
 
+void GLFWBackend::iterate() {
+#ifdef EMSCRIPTEN
+    glfwPollEvents();
+#else
+    glfwWaitEvents();
+#endif
+
+    m_timersMutex.lock();
+    auto ts = std::move(m_timersReady);
+    m_timersMutex.unlock();
+
+    for (auto *t : ts) {
+        t->onTimeout();
+    }
+
+    if (!m_windowsToRender.empty()) {
+        auto wins = std::move(m_windowsToRender);
+        Renderer::instance().begin();
+        for (auto *w : wins) {
+            auto gw = static_cast<GLFWWindow *>(&w->backendWindow());
+            ImGui::SetCurrentContext(gw->m_imgui);
+            ImPlot::SetCurrentContext(gw->m_implot);
+            if (w->surface().newFrame()) {
+                ImGui_ImplGlfw_NewFrame();
+                ImGui::NewFrame();
+
+                w->render();
+
+                ImGui::Render();
+                w->surface().present();
+            }
+        }
+        Renderer::instance().end();
+    }
+}
 void GLFWBackend::run() {
+#ifdef EMSCRIPTEN
+    emscripten_set_main_loop_arg([](void *a) {
+        static_cast<GLFWBackend *>(a)->iterate();
+    },
+            this, 0, true);
+#else
     bool quit = false;
     while (!quit) {
-        glfwWaitEvents();
-
-        m_timersMutex.lock();
-        auto ts = std::move(m_timersReady);
-        m_timersMutex.unlock();
-
-        for (auto *t : ts) {
-            t->onTimeout();
-        }
-
-        if (!m_windowsToRender.empty()) {
-            auto wins = std::move(m_windowsToRender);
-            Renderer::instance().begin();
-            for (auto *w : wins) {
-                auto gw = static_cast<GLFWWindow *>(&w->backendWindow());
-                ImGui::SetCurrentContext(gw->m_imgui);
-                ImPlot::SetCurrentContext(gw->m_implot);
-                if (w->surface().newFrame()) {
-                    ImGui_ImplGlfw_NewFrame();
-                    ImGui::NewFrame();
-
-                    w->onRender();
-
-                    ImGui::Render();
-                    w->surface().present();
-                }
-            }
-            Renderer::instance().end();
-        }
+        iterate();
     }
+#endif
 
     glfwTerminate();
 }
@@ -132,8 +154,10 @@ GLFWWindow::~GLFWWindow() {
 }
 
 void *GLFWWindow::nativeWindow() {
+#ifndef EMSCRIPTEN
 #ifdef X11_ENABLED
     return (void *) glfwGetX11Window(m_win);
+#endif
 #endif
     return nullptr;
 }

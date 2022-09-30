@@ -26,6 +26,7 @@ public:
     Size                      pixelSize() const;
 
     void                      scheduleRender();
+    void                      render();
     std::function<void()>     onRender;
 
     inline Backend::Window   &backendWindow() const { return *m_window; }
@@ -36,6 +37,7 @@ private:
     std::unique_ptr<Renderer::Surface> m_surface;
 
     std::function<void()>              m_updateCallback;
+    bool                               m_renderPending = false;
 };
 
 } // namespace ImChart

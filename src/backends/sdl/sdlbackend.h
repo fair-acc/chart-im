@@ -5,7 +5,7 @@
 
 #include "../backend.h"
 
-struct GLFWwindow;
+struct SDL_Window;
 struct ImGuiContext;
 struct ImPlotContext;
 
@@ -13,9 +13,9 @@ namespace ImChart {
 
 namespace Backend {
 
-class GLFWBackend : public Backend {
+class SDLBackend : public Backend {
 public:
-    static GLFWBackend     *create();
+    static SDLBackend      *create();
 
     void                    run() final;
 
@@ -28,25 +28,23 @@ public:
     void                    startTimer(Timer *t) final;
 
 private:
-    void                           iterate();
+    bool                           iterate();
     std::vector<ImChart::Window *> m_windowsToRender;
-    std::mutex                     m_timersMutex;
-    std::vector<Timer *>           m_timersReady;
 };
 
-class GLFWWindow : public Window {
+class SDLWindow : public Window {
 public:
-    ~GLFWWindow();
+    ~SDLWindow();
 
-    void         *nativeWindow() final;
+    void          *nativeWindow() final;
 
-    void          setSize(int width, int height) override;
-    void          show() override;
+    void           setSize(int width, int height) override;
+    void           show() override;
 
-    Size          pixelSize() const override;
+    Size           pixelSize() const override;
 
-    GLFWwindow   *m_win;
-    ImGuiContext *m_imgui;
+    SDL_Window    *m_win;
+    ImGuiContext  *m_imgui;
     ImPlotContext *m_implot;
 };
 

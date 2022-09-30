@@ -30,7 +30,15 @@ void Window::show() {
 }
 
 void Window::scheduleRender() {
-    Backend::instance().scheduleRender(this);
+    if (!m_renderPending) {
+        Backend::instance().scheduleRender(this);
+        m_renderPending = true;
+    }
+}
+
+void Window::render() {
+    m_renderPending = false;
+    onRender();
 }
 
 } // namespace ImChart

@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
 
     SinDataSet dataset;
 
-    Window win;
+    Window     win(1000, 1000);
 
     dataset.onDataChanged = [&](int, int) {
         win.scheduleRender();
