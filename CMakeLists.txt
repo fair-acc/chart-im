@@ -42,6 +42,7 @@ add_library(imgui STATIC ${imgui_SOURCE_DIR}/imgui.cpp
                          # ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
                          ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl.cpp)
 target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR})
+target_include_directories(imgui PUBLIC ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(imgui PUBLIC SDL2::SDL2)
 
 if (${OpenGL_FOUND})

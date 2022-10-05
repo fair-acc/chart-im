@@ -11,19 +11,19 @@ SinDataSet::SinDataSet() {
     m_timer.onTimeout = [this]() { update(); };
     m_timer.start();
 
-    _xdata.resize(1e5);
-    _ydata.resize(1e5);
+    _xdata.resize(1e6);
+    _ydata.resize(1e6);
 
-    for (int i = 0; i < 1e5; ++i) {
+    for (int i = 0; i < 1e6; ++i) {
         const float x = float(i) / 100.;
         _xdata[i]     = x;
         _ydata[i]     = std::sin(_offset + x);
     }
 
-    _xPosErrors.resize(1e5, 0.3);
-    _xNegErrors.resize(1e5, 0.3);
-    _yPosErrors.resize(1e5, 0.2);
-    _yNegErrors.resize(1e5, 0.1);
+    _xPosErrors.resize(1e6, 0.3);
+    _xNegErrors.resize(1e6, 0.3);
+    _yPosErrors.resize(1e6, 0.2);
+    _yNegErrors.resize(1e6, 0.1);
 }
 
 SinDataSet::~SinDataSet() {
@@ -46,17 +46,17 @@ std::span<float> SinDataSet::getNegativeErrors(int dimIndex) {
 }
 
 int SinDataSet::getDataCount() const {
-    return 1e5;
+    return 1e6;
 }
 
 void SinDataSet::update() {
-    _offset += 0.1;
-
-    for (int i = 0; i < 1e5; ++i) {
-        const float x = float(i) / 100.;
-        _xdata[i]     = x;
-        _ydata[i]     = std::sin(_offset + x);
-    }
+    // _offset += 0.1;
+    //
+    // for (int i = 0; i < 1e6; ++i) {
+    //     const float x = float(i) / 100.;
+    //     _xdata[i]     = x;
+    //     _ydata[i]     = std::sin(_offset + x);
+    // }
 
     dataChanged(0, getDataCount());
 }

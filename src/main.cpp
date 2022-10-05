@@ -41,6 +41,8 @@ int main(int argc, char **argv) {
         ImGui::SetNextWindowSize({ float(size.width), float(size.height) });
         ImGui::Begin("Main Window", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoBringToFrontOnFocus);
         if (ImPlot::BeginPlot("My Plot")) {
+            ImPlot::SetupAxis(ImAxis_X1, "My X-Axis", ImPlotAxisFlags_LogScale);
+            // ImPlot::SetupAxis(ImAxis_Y1, "My Y-Axis", ImPlotAxisFlags_LogScale);
             ImPlot::PlotLine("My Line Plot", dataset.getValues(0).data(), dataset.getValues(1).data(), dataset.getDataCount());
             ImPlot::EndPlot();
         }

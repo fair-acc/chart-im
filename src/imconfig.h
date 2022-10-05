@@ -50,7 +50,7 @@
 //#define IMGUI_DISABLE_SSE                                 // Disable use of SSE intrinsics even if available
 
 //---- Include imgui_user.h at the end of imgui.h as a convenience
-//#define IMGUI_INCLUDE_IMGUI_USER_H
+#define IMGUI_INCLUDE_IMGUI_USER_H
 
 //---- Pack colors to BGRA8 instead of RGBA8 (to avoid converting from one to another)
 //#define IMGUI_USE_BGRA_PACKED_COLOR
@@ -123,3 +123,22 @@ namespace ImGui
     void MyFunction(const char* name, const MyMatrix44& v);
 }
 */
+
+#define IMGUI_OVERRIDE_DRAWVERT_STRUCT_LAYOUT \
+struct ImVec3 \
+{ \
+    float                                   x, y, z; \
+    constexpr ImVec3()                      : x(0.0f), y(0.0f), z(0.0f) { } \
+    constexpr ImVec3(float _x, float _y, float _z)    : x(_x), y(_y), z(_z) { } \
+    constexpr ImVec3(ImVec2 v) : x(v.x), y(v.y), z(0) {} \
+    float  operator[] (size_t idx) const    { IM_ASSERT(idx <= 2); return (&x)[idx]; } \
+    float& operator[] (size_t idx)          { IM_ASSERT(idx <= 2); return (&x)[idx]; } \
+    operator ImVec2() const { return ImVec2(x, y); } \
+}; \
+\
+struct ImDrawVert \
+{ \
+    ImVec3  pos; \
+    ImVec2  uv; \
+    ImU32   col; \
+};
