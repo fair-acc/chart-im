@@ -95,7 +95,6 @@ static void timeout(void *p)
 static unsigned int timeout(unsigned int, void *p)
 #endif
 {
-    fmt::print("tim\n");
     auto t = static_cast<Timer *>(p);
     SDL_Event e;
     e.type       = TIMER_EVENT;
