@@ -89,17 +89,34 @@ void                 SDLBackend::scheduleRender(ImChart::Window *window) {
                     SDL_PushEvent(&e);
 }
 
+#if EMSCRIPTEN
+static void timeout(void *p)
+#else
+static unsigned int timeout(unsigned int, void *p)
+#endif
+{
+    fmt::print("tim\n");
+    auto t = static_cast<Timer *>(p);
+    SDL_Event e;
+    e.type       = TIMER_EVENT;
+    e.user.data1 = p;
+    SDL_PushEvent(&e);
+
+#if EMSCRIPTEN
+    emscripten_async_call(timeout, t, t->interval.count());
+#else
+    return t->interval.count();
+#endif
+}
+
 void SDLBackend::startTimer(Timer *timer) {
-    int id = SDL_AddTimer(
-            timer->interval.count(), [](unsigned int, void *p) -> unsigned int {
-                auto      t = static_cast<Timer *>(p);
-                SDL_Event e;
-                e.type       = TIMER_EVENT;
-                e.user.data1 = p;
-                SDL_PushEvent(&e);
-                return t->interval.count();
-            },
-            timer);
+#if EMSCRIPTEN
+    // SDL_AddTimer does not works correctly on emscripten:
+    // https://github.com/emscripten-core/emscripten/issues/17941
+    emscripten_async_call(timeout, timer, timer->interval.count());
+#else
+    int id = SDL_AddTimer(timer->interval.count(), timeout, timer);
+#endif
 }
 
 bool SDLBackend::iterate() {
