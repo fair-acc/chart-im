@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(ENV{CPM_SOURCE_CACHE} ${CMAKE_SOURCE_DIR}/.cpm_cache)
 include(cmake/CPM.cmake)
 
+CPMAddPackage("https://github.com/jbeder/yaml-cpp.git#yaml-cpp-0.7.0")
 CPMAddPackage("https://github.com/fmtlib/fmt.git#8.0.1")
 #CPMAddPackage("https://github.com/glfw/glfw.git#3.3.8")
 
@@ -13,6 +14,7 @@ find_package(SDL2 REQUIRED)
 
 CPMAddPackage("https://github.com/ocornut/imgui.git#v1.88")
 CPMAddPackage("https://github.com/epezent/implot.git#v0.13")
+CPMAddPackage("https://github.com/thedmd/imgui-node-editor.git#master")
 
 set(BUILD_OPENGL_BACKEND "AUTO" CACHE STRING "Build the OpenGL backend")
 
@@ -57,16 +59,27 @@ add_library(implot STATIC ${implot_SOURCE_DIR}/implot.cpp
 target_link_libraries(implot PUBLIC imgui)
 target_include_directories(implot PUBLIC ${implot_SOURCE_DIR})
 
+add_library(imgui-node-editor STATIC ${imgui-node-editor_SOURCE_DIR}/imgui_node_editor.cpp
+                                     ${imgui-node-editor_SOURCE_DIR}/imgui_canvas.cpp
+                                     ${imgui-node-editor_SOURCE_DIR}/imgui_node_editor_api.cpp
+                                     ${imgui-node-editor_SOURCE_DIR}/crude_json.cpp)
+target_link_libraries(imgui-node-editor PUBLIC imgui)
+target_include_directories(imgui-node-editor PUBLIC ${imgui-node-editor_SOURCE_DIR})
+
+
 add_executable(imchart src/main.cpp
                        src/dataset.cpp
                        src/sindataset.cpp
                        src/window.cpp
                        src/timer.cpp
+                       src/flowgraph.cpp
                        src/backends/backend.cpp
                        # src/backends/glfw/glfwbackend.cpp
                        src/backends/sdl/sdlbackend.cpp
                        src/renderers/renderer.cpp)
 target_compile_definitions(imchart PRIVATE -DX11_ENABLED)
+target_compile_definitions(imchart PRIVATE SRC_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+target_compile_definitions(imchart PRIVATE BLOCKS_DIR="/usr/share/gnuradio/grc/blocks")
 if (${OpenGL_FOUND})
     target_compile_definitions(imchart PRIVATE -DOPENGL_ENABLED)
     target_sources(imchart PRIVATE src/renderers/opengl/openglrenderer.cpp)
@@ -77,7 +90,7 @@ if (${OpenGL_FOUND})
 endif()
 
 target_include_directories(imchart PRIVATE ${CMAKE_SOURCE_DIR}/src)
-target_link_libraries(imchart SDL2::SDL2 fmt::fmt imgui implot)
+target_link_libraries(imchart SDL2::SDL2 fmt::fmt imgui implot imgui-node-editor yaml-cpp)
 if (${EMSCRIPTEN})
     set_target_properties(imchart PROPERTIES LINK_FLAGS "-s USE_SDL=2 -s USE_WEBGL2=1 -s FULL_ES3=1 -s ASSERTIONS=1 -sALLOW_MEMORY_GROWTH")
     set_target_properties(imchart PROPERTIES SUFFIX ".html")

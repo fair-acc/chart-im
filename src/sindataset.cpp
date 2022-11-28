@@ -52,11 +52,11 @@ int SinDataSet::getDataCount() const {
 void SinDataSet::update() {
     _offset += 0.1;
 
-    // for (int i = 0; i < 1e5; ++i) {
-    //     const float x = float(i) / 100.;
-    //     _xdata[i]     = x;
-    //     _ydata[i]     = std::sin(_offset + x);
-    // }
+    for (int i = 0; i < 1e5; ++i) {
+        const float x = float(i) / 100.;
+        _xdata[i]     = x;
+        _ydata[i]     = std::sin(_offset + x);
+    }
 
     dataChanged(0, getDataCount());
 }
